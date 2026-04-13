@@ -1,23 +1,20 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import Editor from "@monaco-editor/react";
 
 function App() {
+  const [code, setCode] = useState("// Start coding...");
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Real-Time Code Editor</h1>
+
+      <Editor
+        height="80vh"
+        defaultLanguage="javascript"
+        theme="vs-dark"
+        value={code}
+        onChange={(value) => setCode(value)}
+      />
     </div>
   );
 }
