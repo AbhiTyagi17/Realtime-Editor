@@ -24,21 +24,37 @@ app.get("/", (req, res) => {
 });
 
 // Socket connection
+const users = {}; // { roomId: [user1, user2] }
+
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  // Join room
-  socket.on("join-room", (roomId) => {
+  socket.on("join-room", ({ roomId, username }) => {
     socket.join(roomId);
-    console.log(`User ${socket.id} joined room ${roomId}`);
+
+    // Add user
+    if (!users[roomId]) users[roomId] = [];
+    users[roomId].push({ id: socket.id, username });
+
+    // Send updated users list
+    io.to(roomId).emit("users-update", users[roomId]);
+
+    console.log(`${username} joined ${roomId}`);
   });
 
-  // Listen for code changes
   socket.on("code-change", ({ roomId, code }) => {
     socket.to(roomId).emit("code-update", code);
   });
 
   socket.on("disconnect", () => {
+    for (let roomId in users) {
+      users[roomId] = users[roomId].filter(
+        (user) => user.id !== socket.id
+      );
+
+      io.to(roomId).emit("users-update", users[roomId]);
+    }
+
     console.log("User disconnected:", socket.id);
   });
 });
