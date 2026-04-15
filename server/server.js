@@ -27,8 +27,15 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  socket.on("code-change", (code) => {
-    socket.broadcast.emit("code-update", code);
+  // Join room
+  socket.on("join-room", (roomId) => {
+    socket.join(roomId);
+    console.log(`User ${socket.id} joined room ${roomId}`);
+  });
+
+  // Listen for code changes
+  socket.on("code-change", ({ roomId, code }) => {
+    socket.to(roomId).emit("code-update", code);
   });
 
   socket.on("disconnect", () => {
