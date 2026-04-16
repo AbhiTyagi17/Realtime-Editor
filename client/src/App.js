@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
-import Editor from "@monaco-editor/react";
 import { io } from "socket.io-client";
+import "./styles/App.css";
+
+import Sidebar from "./components/Sidebar";
+import JoinRoom from "./components/JoinRoom";
+import EditorPage from "./components/EditorPage";
 
 const socket = io("http://localhost:5000");
 
@@ -27,58 +31,38 @@ function App() {
   }, []);
 
   const joinRoom = () => {
-    if (roomId && username) {
-      socket.emit("join-room", { roomId, username });
-      setJoined(true);
+    if (!roomId || !username) {
+      alert("Enter all fields");
+      return;
     }
+
+    socket.emit("join-room", { roomId, username });
+    setJoined(true);
   };
 
   const handleChange = (value) => {
-    setCode(value);
+    if (!joined) return;
 
-    socket.emit("code-change", {
-      roomId,
-      code: value,
-    });
+    setCode(value);
+    socket.emit("code-change", { roomId, code: value });
   };
 
   return (
-    <div style={{ display: "flex" }}>
+    <div className="container">
       
-      {/* Sidebar */}
-      <div style={{ width: "200px", padding: "10px", background: "#1e1e1e", color: "white" }}>
-        <h3>Users</h3>
-        {users.map((user) => (
-          <div key={user.id}>🟢 {user.username}</div>
-        ))}
-      </div>
+      {joined && <Sidebar roomId={roomId} users={users} />}
 
-      {/* Main */}
-      <div style={{ flex: 1 }}>
-        <h1>Real-Time Code Editor</h1>
-
+      <div className="main">
         {!joined ? (
-          <div>
-            <input
-              placeholder="Enter Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <input
-              placeholder="Enter Room ID"
-              value={roomId}
-              onChange={(e) => setRoomId(e.target.value)}
-            />
-            <button onClick={joinRoom}>Join Room</button>
-          </div>
-        ) : (
-          <Editor
-            height="90vh"
-            defaultLanguage="javascript"
-            theme="vs-dark"
-            value={code}
-            onChange={handleChange}
+          <JoinRoom
+            username={username}
+            setUsername={setUsername}
+            roomId={roomId}
+            setRoomId={setRoomId}
+            joinRoom={joinRoom}
           />
+        ) : (
+          <EditorPage code={code} handleChange={handleChange} />
         )}
       </div>
     </div>
