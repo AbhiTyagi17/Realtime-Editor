@@ -1,32 +1,45 @@
+/* Global reset (optional but good) */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
 }
 
+/* Layout */
 .container {
   display: flex;
   height: 100vh;
 }
 
-.sidebar {
-  width: 220px;
-  background: #111;
-  color: white;
-  padding: 15px;
-}
-
 .main {
   flex: 1;
+  overflow: hidden;
 }
 
-.topbar {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  background: #222;
+/* Buttons */
+button {
+  background: #333;
   color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 5px;
 }
 
-.join-container {
-  padding: 20px;
+button:hover {
+  background: #555;
+}
+
+/* Optional (can remove if unused) */
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
 }

@@ -14,6 +14,8 @@ function App() {
   const [username, setUsername] = useState("");
   const [joined, setJoined] = useState(false);
   const [users, setUsers] = useState([]);
+  const [output, setOutput] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     socket.on("code-update", (newCode) => {
@@ -30,6 +32,26 @@ function App() {
     };
   }, []);
 
+  const runCode = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("http://localhost:5000/run", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code })
+      });
+
+      const data = await response.json();
+      setOutput(data.output);
+    } catch (error) {
+      console.error(error);
+      setOutput("Error running code");
+    }
+    setLoading(false);
+  };
+
   const joinRoom = () => {
     if (!roomId || !username) {
       alert("Enter all fields");
@@ -41,7 +63,7 @@ function App() {
   };
 
   const handleChange = (value) => {
-    if (!joined) return;
+    if (!joined || value === undefined) return;
 
     setCode(value);
     socket.emit("code-change", { roomId, code: value });
@@ -49,7 +71,7 @@ function App() {
 
   return (
     <div className="container">
-      
+
       {joined && <Sidebar roomId={roomId} users={users} />}
 
       <div className="main">
@@ -62,7 +84,13 @@ function App() {
             joinRoom={joinRoom}
           />
         ) : (
-          <EditorPage code={code} handleChange={handleChange} />
+          <EditorPage
+            code={code}
+            handleChange={handleChange}
+            runCode={runCode}
+            output={output}
+            loading={loading}
+          />
         )}
       </div>
     </div>
